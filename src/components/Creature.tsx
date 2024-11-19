@@ -4,7 +4,8 @@ const Creature = ({ type = 'baby', mood = 'normal', sleeping = false }) => {
   const [animFrame, setAnimFrame] = useState(0);
   const [glitchOffset, setGlitchOffset] = useState({ x: 0, y: 0 });
   const [particlePhase, setParticlePhase] = useState(0);
-  const [eyeState, setEyeState] = useState({ left: 0, right: 0 });
+
+  const eyeState = { left: 0, right: 0 };
   
   interface Pattern {
     x: number;
@@ -63,6 +64,34 @@ const Creature = ({ type = 'baby', mood = 'normal', sleeping = false }) => {
         length: 6,
         angle: Math.random() * Math.PI * 2
       }));
+    } else if (type === 'baby') {
+      const babySchemes = [
+        // Soft baby blue scheme
+        { 
+          base: 'hsl(200, 70%, 85%)',    // Light powder blue
+          glow: 'hsl(210, 60%, 90%)',    // Softer sky blue
+          accent: 'hsl(190, 65%, 75%)'   // Gentle aqua
+        },
+        // Gentle pink scheme
+        { 
+          base: 'hsl(350, 70%, 87%)',    // Baby pink
+          glow: 'hsl(340, 60%, 90%)',    // Soft rose
+          accent: 'hsl(355, 65%, 80%)'   // Light coral
+        },
+        // Soft mint scheme
+        { 
+          base: 'hsl(150, 60%, 85%)',    // Mint green
+          glow: 'hsl(140, 50%, 90%)',    // Lighter sage
+          accent: 'hsl(160, 55%, 80%)'   // Soft seafoam
+        },
+        // Gentle lavender scheme
+        { 
+          base: 'hsl(280, 50%, 87%)',    // Light lavender
+          glow: 'hsl(290, 40%, 90%)',    // Softer lilac
+          accent: 'hsl(270, 45%, 82%)'   // Gentle purple
+        }
+      ]
+      colors = babySchemes[Math.floor(Math.random() * babySchemes.length)];
     } else if (type === 'good') {
       const goodSchemes = [
         { base: 'hsl(180, 70%, 80%)', glow: 'hsl(210, 70%, 75%)', accent: 'hsl(240, 80%, 85%)' },
@@ -123,70 +152,6 @@ const Creature = ({ type = 'baby', mood = 'normal', sleeping = false }) => {
     }, 100);
     return () => clearInterval(interval);
   }, [type]);
-
-  if (type === 'baby') {  
-    return (
-      <svg viewBox="0 0 64 64" className="w-20 h-20">
-        <g transform={`translate(0, ${Math.sin(animFrame * 0.2) * 2})`}>
-          {/* Baby tentacles with wiggle */}
-          {characterShape.tentacles.map((tentacle, i) => {
-            const wobble = Math.sin((animFrame * 0.2) + i * Math.PI) * 1;
-            const baseX = 34 + Math.cos(tentacle.angle) * (8 + wobble);
-            const baseY = 34 + Math.sin(tentacle.angle) * (8 + wobble);
-            return (
-              <rect
-                key={`tentacle-${i}`}
-                x={baseX - 2}
-                y={baseY - 2}
-                width={4}
-                height={4}
-                fill={characterShape.base}
-              />
-            );
-          })}
-          
-          {/* 3x3 pixel core */}
-          {[[-1,-1], [0,-1], [1,-1],
-            [-1,0],  [0,0],  [1,0],
-            [-1,1],  [0,1],  [1,1]].map(([x, y], i) => (
-            <rect
-              key={`core-${i}`}
-              x={34 + x * 4}
-              y={34 + y * 4}
-              width={4}
-              height={4}
-              fill={characterShape.base}
-            />
-          ))}
-          
-          {/* Baby face */}
-          {sleeping ? (
-            <>
-              <rect x={32} y={34} width={2} height={1} fill="#FFFFFF" />
-              <rect x={38} y={34} width={2} height={1} fill="#FFFFFF" />
-            </>
-          ) : (
-            <>
-              <rect x={32} y={34} width={2} height={2} fill="#FFFFFF" />
-              <rect x={38} y={34} width={2} height={2} fill="#FFFFFF" />
-              <rect x={32.5} y={34.5} width={1} height={1} fill={characterShape.accent} />
-              <rect x={38.5} y={34.5} width={1} height={1} fill={characterShape.accent} />
-              <path
-                d={`M 34 37 ${
-                  mood === 'happy' ? 'q 1 -0.5 2 0' : 
-                  mood === 'sad' ? 'q 1 0.5 2 0' : 
-                  'h 2'
-                }`}
-                stroke={characterShape.accent}
-                fill="none"
-                strokeWidth={0.5}
-              />
-            </>
-          )}
-        </g>
-      </svg>
-    );
-  }
 
   const renderParticles = () => {
     if (type !== 'good') return null;
@@ -436,6 +401,70 @@ const Creature = ({ type = 'baby', mood = 'normal', sleeping = false }) => {
       </g>
     );
   };
+
+  if (type === 'baby') {  
+    return (
+      <svg viewBox="0 0 64 64" className="w-20 h-20">
+        <g transform={`translate(32, 32) scale(2) translate(-32, -32) translate(0, ${Math.sin(animFrame * 0.2) * 2})`}>
+        {/* Baby tentacles with wiggle */}
+          {characterShape.tentacles.map((tentacle, i) => {
+            const wobble = Math.sin((animFrame * 0.2) + i * Math.PI) * 1;
+            const baseX = 34 + Math.cos(tentacle.angle) * (8 + wobble);
+            const baseY = 34 + Math.sin(tentacle.angle) * (8 + wobble);
+            return (
+              <rect
+                key={`tentacle-${i}`}
+                x={baseX - 2}
+                y={baseY - 2}
+                width={4}
+                height={4}
+                fill={characterShape.base}
+              />
+            );
+          })}
+          
+          {/* 3x3 pixel core */}
+          {[[-1,-1], [0,-1], [1,-1],
+            [-1,0],  [0,0],  [1,0],
+            [-1,1],  [0,1],  [1,1]].map(([x, y], i) => (
+            <rect
+              key={`core-${i}`}
+              x={34 + x * 4}
+              y={34 + y * 4}
+              width={4}
+              height={4}
+              fill={characterShape.base}
+            />
+          ))}
+          
+          {/* Baby face */}
+          {sleeping ? (
+            <>
+              <rect x={32} y={34} width={2} height={1} fill="#FFFFFF" />
+              <rect x={38} y={34} width={2} height={1} fill="#FFFFFF" />
+            </>
+          ) : (
+            <>
+              <rect x={32} y={34} width={2} height={2} fill="#FFFFFF" />
+              <rect x={38} y={34} width={2} height={2} fill="#FFFFFF" />
+              <rect x={32.5} y={34.5} width={1} height={1} fill={characterShape.accent} />
+              <rect x={38.5} y={34.5} width={1} height={1} fill={characterShape.accent} />
+              <path
+                d={`M 34 37 ${
+                  mood === 'happy' ? 'q 1 -0.5 2 0' : 
+                  mood === 'sad' ? 'q 1 0.5 2 0' : 
+                  'h 2'
+                }`}
+                stroke={characterShape.accent}
+                fill="none"
+                strokeWidth={0.5}
+              />
+            </>
+          )}
+        </g>
+      </svg>
+    );
+  }
 
   return (
     <svg viewBox="0 0 64 64" className="w-20 h-20">
